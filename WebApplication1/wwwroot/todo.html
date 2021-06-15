@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Hei</h1>
+    <div id="app"></div>
+    <script>
+        const model = {
+            todos: [],
+            newItem: '',
+        };
+        getData();
+        async function getData() {
+            try {
+                const response = await axios.get('api/Todo');
+                model.todos = response.data;
+                updateView();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function updateView() {
+            let todosHtml = '';
+            for (let todo of model.todos) {
+                todosHtml += `<li>
+                                    ${todo.text}
+                                    <input type="checkbox" ${todo.isDone ? 'checked="checked"' : ''}"/>
+                                </li>
+                        `;
+            }
+            document.getElementById('app').innerHTML = `
+                    <h1>Min todo-liste</h1>
+                    ${todosHtml}
+                    <hr/>
+                    <input
+                        type="text"
+                        oninput="model.newItem = this.value"
+                        value="${model.newItem}"
+                    />
+                    <button onclick="addNewItem()">Legg til</button>
+
+                `;
+        }
+
+        async function addNewItem() {
+            try {
+                const todo = { text: model.newItem, isDone: false };
+                const response = await axios.post('api/Todo', todo);
+                model.newItem = '';
+                getData();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+    </script>
+</body>
+</html>
